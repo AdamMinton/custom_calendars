@@ -1,4 +1,6 @@
 view: fiscal_calendar {
+  view_label: "03. 🗓️ Calendar"
+
   sql_table_name: `aminton-sandbox-ps.reference.calendar_nrf_stable` ;;
 
   dimension: calendar_raw {
