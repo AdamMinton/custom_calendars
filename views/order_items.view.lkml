@@ -2,7 +2,8 @@ view: order_items {
   #Non Paritioned, Non Clustered
   #sql_table_name: `looker-private-demo.thelook.order_items`;;
   #Paritioned,Clustered on created_at
-  sql_table_name: `aminton-sandbox-ps.aminton_sandbox_ps.order_items_partition_cluster`;;
+  # sql_table_name: `aminton-sandbox-ps.aminton_sandbox_ps.order_items_partition_cluster`;;
+  sql_table_name: `looker-private-demo.thelook.order_items` ;;
 
   dimension: id {
     hidden: yes

@@ -2,7 +2,7 @@ view: fiscal_period_analysis_calendar {
   view_label: "02. 📊 Fiscal Period Comparison"
   #This view maintains all of the logic related to the the parameter that drives the filtering in orders_completed_final and transactions_final
   derived_table: {
-    datagroup_trigger: daily
+    # datagroup_trigger: daily
     explore_source: fiscal_period_analysis_dates {
       column: calendar_raw {}
       column: previous_date {}

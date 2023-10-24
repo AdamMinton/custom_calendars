@@ -1,5 +1,3 @@
-#aragonite: yes
-
 project_name: "custom_calendars"
 
 constant: fiscal_year {
@@ -23,7 +21,16 @@ constant: fiscal_year_start {
   {% elsif fiscal_year == 2020 %} {% assign fiscal_year_start = '2020-02-02' %}
   {% elsif fiscal_year == 2021 %} {% assign fiscal_year_start = '2021-01-31' %}
   {% elsif fiscal_year == 2022 %} {% assign fiscal_year_start = '2022-01-30' %}
-  {% else %} {% assign fiscal_year_start = '2022-01-30' %}
+  {% elsif fiscal_year == 2023 %} {% assign fiscal_year_start = '2023-01-29' %}
+  {% elsif fiscal_year == 2024 %} {% assign fiscal_year_start = '2024-02-04' %}
+  {% elsif fiscal_year == 2025 %} {% assign fiscal_year_start = '2025-02-02' %}
+  {% elsif fiscal_year == 2026 %} {% assign fiscal_year_start = '2026-02-01' %}
+  {% elsif fiscal_year == 2027 %} {% assign fiscal_year_start = '2027-01-31' %}
+  {% elsif fiscal_year == 2028 %} {% assign fiscal_year_start = '2028-01-30' %}
+  {% elsif fiscal_year == 2029 %} {% assign fiscal_year_start = '2029-02-04' %}
+  {% elsif fiscal_year == 2030 %} {% assign fiscal_year_start = '2030-02-03' %}
+
+  {% else %} {% assign fiscal_year_start = '2030-02-03' %}
   {% endif %}
   {% assign fiscal_year_start_seconds = fiscal_year_start | date: '%s' %}
   "
@@ -40,7 +47,16 @@ constant: fiscal_year_end {
   {% elsif fiscal_year == 2020 %} {% assign fiscal_year_end = '2021-01-30' %}
   {% elsif fiscal_year == 2021 %} {% assign fiscal_year_end = '2022-01-29' %}
   {% elsif fiscal_year == 2022 %} {% assign fiscal_year_end = '2023-01-28' %}
-  {% else %} {% assign fiscal_year_end = '2023-01-28' %}
+  {% elsif fiscal_year == 2023 %} {% assign fiscal_year_end = '2024-02-03' %}
+  {% elsif fiscal_year == 2024 %} {% assign fiscal_year_end = '2025-02-01' %}
+  {% elsif fiscal_year == 2025 %} {% assign fiscal_year_end = '2026-01-31' %}
+  {% elsif fiscal_year == 2026 %} {% assign fiscal_year_end = '2027-01-30' %}
+  {% elsif fiscal_year == 2027 %} {% assign fiscal_year_end = '2028-01-29' %}
+  {% elsif fiscal_year == 2028 %} {% assign fiscal_year_end = '2029-02-03' %}
+  {% elsif fiscal_year == 2029 %} {% assign fiscal_year_end = '2030-02-02' %}
+  {% elsif fiscal_year == 2030 %} {% assign fiscal_year_end = '2031-02-01' %}
+
+  {% else %} {% assign fiscal_year_end = '2031-02-01' %}
   {% endif %}
   {% assign fiscal_year_end_seconds = fiscal_year_end | date: '%s' %}
   "
@@ -70,7 +86,15 @@ constant: today_fiscal_day_of_year {
   {% elsif today_fiscal_year == 2020 %} {% assign today_fiscal_year_start = '2020-02-02' %}
   {% elsif today_fiscal_year == 2021 %} {% assign today_fiscal_year_start = '2021-01-31' %}
   {% elsif today_fiscal_year == 2022 %} {% assign today_fiscal_year_start = '2022-01-30' %}
-  {% else %} {% assign today_fiscal_year_start = '2022-01-30' %}
+  {% elsif today_fiscal_year == 2023 %} {% assign today_fiscal_year_start = '2023-01-29' %}
+  {% elsif today_fiscal_year == 2024 %} {% assign today_fiscal_year_start = '2024-02-04' %}
+  {% elsif today_fiscal_year == 2025 %} {% assign today_fiscal_year_start = '2025-02-02' %}
+  {% elsif today_fiscal_year == 2026 %} {% assign today_fiscal_year_start = '2026-02-01' %}
+  {% elsif today_fiscal_year == 2027 %} {% assign today_fiscal_year_start = '2027-01-31' %}
+  {% elsif today_fiscal_year == 2028 %} {% assign today_fiscal_year_start = '2028-01-30' %}
+  {% elsif today_fiscal_year == 2029 %} {% assign today_fiscal_year_start = '2029-02-04' %}
+  {% elsif today_fiscal_year == 2030 %} {% assign today_fiscal_year_start = '2030-02-03' %}
+  {% else %} {% assign today_fiscal_year_start = '2030-02-03' %}
   {% endif %}
   {% assign today_seconds = 'now' | date: '%s' %}
   {% assign today_fiscal_year_start_seconds = today_fiscal_year_start | date: '%s' %}
@@ -319,6 +343,24 @@ constant: two_years_ago_fiscal_dates {
   @{fiscal_quarter_end}"
 }
 
+constant: fy19_fiscal_dates {
+  value: "
+  @{fiscal_year}
+  {% assign fiscal_year = 2019 %}
+  @{fiscal_year_start}
+  @{fiscal_year_end}
+  @{today_fiscal_day_of_year}
+  @{fiscal_week_number}
+  @{fiscal_week_start}
+  @{fiscal_week_end}
+  @{fiscal_month_number}
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+  @{fiscal_quarter_number}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}"
+}
+
 constant: last_year_last_week_fiscal_dates {
   value: "
   @{fiscal_year}
@@ -342,6 +384,25 @@ constant: two_years_last_week_fiscal_dates {
   value: "
   @{fiscal_year}
   {% assign fiscal_year = fiscal_year | minus:2 %}
+  @{fiscal_year_start}
+  @{today_fiscal_day_of_year}
+  @{fiscal_week_number}
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_week_number = 52 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  @{fiscal_year_end}
+  {% else %}
+  {% assign fiscal_week_number = fiscal_week_number | minus: 1 %}
+  {% endif %}
+  @{fiscal_week_start}
+  @{fiscal_week_end}"
+}
+
+constant: fy19_last_week_fiscal_dates {
+  value: "
+  @{fiscal_year}
+  {% assign fiscal_year = 2019 %}
   @{fiscal_year_start}
   @{today_fiscal_day_of_year}
   @{fiscal_week_number}
@@ -395,6 +456,25 @@ constant: two_years_last_month_fiscal_dates {
   @{fiscal_month_end}"
 }
 
+constant: fy19_last_month_fiscal_dates {
+  value: "
+  @{fiscal_year}
+  {% assign fiscal_year = 2019 %}
+  @{fiscal_year_start}
+  @{today_fiscal_day_of_year}
+  @{fiscal_week_number}
+  @{fiscal_month_number}
+  {% if fiscal_month_number == 1 %}
+  {% assign fiscal_month_number = 12 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  {% else %}
+  {% assign fiscal_month_number = fiscal_month_number | minus: 1 %}
+  {% endif %}
+  @{fiscal_month_start}
+  @{fiscal_month_end}"
+}
+
 constant: last_year_last_quarter_fiscal_dates {
   value: "
   @{fiscal_year}
@@ -418,6 +498,25 @@ constant: two_years_last_quarter_fiscal_dates {
   value: "
   @{fiscal_year}
   {% assign fiscal_year = fiscal_year | minus:2 %}
+  @{fiscal_year_start}
+  @{today_fiscal_day_of_year}
+  @{fiscal_week_number}
+  @{fiscal_quarter_number}
+  {% if fiscal_quarter_number == 1 %}
+  {% assign fiscal_quarter_number = 4 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  {% else %}
+  {% assign fiscal_quarter_number = fiscal_quarter_number | minus: 1 %}
+  {% endif %}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}"
+}
+
+constant: fy19_last_quarter_fiscal_dates {
+  value: "
+  @{fiscal_year}
+  {% assign fiscal_year = 2019 %}
   @{fiscal_year_start}
   @{today_fiscal_day_of_year}
   @{fiscal_week_number}
@@ -473,6 +572,60 @@ constant: this_month_dates {
   {{dates}}"
 }
 
+constant: this_mtd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  {% assign fiscal_month_number = 12 %}
+
+  @{fiscal_year_start}
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+
+
+  {% elsif fiscal_week_number == 5
+  or fiscal_week_number == 10
+  or fiscal_week_number == 14
+  or fiscal_week_number == 18
+  or fiscal_week_number == 23
+  or fiscal_week_number == 27
+  or fiscal_week_number == 31
+  or fiscal_week_number == 36
+  or fiscal_week_number == 40
+  or fiscal_week_number == 44
+  or fiscal_week_number == 49 %}
+  @{fiscal_month_number}
+  {% assign fiscal_month_number = fiscal_month_number | minus: 1 %}
+
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+
+  {% else %}
+  @{fiscal_month_number}
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+  @{fiscal_week_start}
+  @{fiscal_week_end}
+
+  {% assign start_date = fiscal_month_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: this_quarter_dates {
   value: "
   @{this_year_fiscal_dates}
@@ -482,11 +635,86 @@ constant: this_quarter_dates {
   {{dates}}"
 }
 
+constant: this_qtd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  {% assign fiscal_quarter_number = 4 %}
+
+  @{fiscal_year_start}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+
+
+  {% elsif fiscal_week_number == 14
+  or fiscal_week_number == 27
+  or fiscal_week_number == 40
+  %}
+  @{fiscal_quarter_number}
+  {% assign fiscal_quarter_number = fiscal_quarter_number | minus: 1 %}
+
+  @{fiscal_year_start}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+
+  {% else %}
+  @{fiscal_quarter_number}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+  @{fiscal_week_start}
+  @{fiscal_week_end}
+
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: this_year_dates {
   value: "
   @{this_year_fiscal_dates}
   {% assign start_date = fiscal_year_start %}
   {% assign end_date = fiscal_year_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
+constant: this_ytd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+
+  @{fiscal_year_start}
+  @{fiscal_year_end}
+  {% assign start_date = fiscal_year_start %}
+  {% assign end_date = fiscal_year_end %}
+
+  {% else %}
+  @{this_year_fiscal_dates}
+
+  {% assign start_date = fiscal_year_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
   @{loop_dates}
   {{dates}}"
 }
@@ -545,9 +773,54 @@ constant: last_year_dates {
   {{dates}}"
 }
 
+constant: last_year_this_ytd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 2 %}
+
+  @{fiscal_year_start}
+  @{fiscal_year_end}
+  {% assign start_date = fiscal_year_start %}
+  {% assign end_date = fiscal_year_end %}
+
+  {% else %}
+  @{last_year_fiscal_dates}
+
+  {% assign start_date = fiscal_year_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
+  @{loop_dates}
+  {{dates}}"
+}
+
+
+constant: this_ytd_dates {
+  value: "
+  @{this_year_fiscal_dates}
+  {% assign start_date = fiscal_year_start %}
+  {% assign end_date =  'now' | date: '%Y-%m-%d' %}
+  @{loop_dates}
+  {{dates}}"
+}
 constant: two_years_ago_dates {
   value: "
   @{two_years_ago_fiscal_dates}
+  {% assign start_date = fiscal_year_start %}
+  {% assign end_date = fiscal_year_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
+constant: fy19_dates {
+  value: "
+  @{fy19_fiscal_dates}
   {% assign start_date = fiscal_year_start %}
   {% assign end_date = fiscal_year_end %}
   @{loop_dates}
@@ -582,6 +855,15 @@ constant: two_years_this_week_dates {
   {{dates}}"
 }
 
+constant: fy19_this_week_dates {
+  value: "
+  @{fy19_fiscal_dates}
+  {% assign start_date = fiscal_week_start %}
+  {% assign end_date = fiscal_week_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: last_year_this_month_dates {
   value: "
   @{last_year_fiscal_dates}
@@ -591,9 +873,78 @@ constant: last_year_this_month_dates {
   {{dates}}"
 }
 
+constant: last_year_this_mtd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 2 %}
+  {% assign fiscal_month_number = 12 %}
+
+  @{fiscal_year_start}
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+
+
+  {% elsif fiscal_week_number == 5
+  or fiscal_week_number == 10
+  or fiscal_week_number == 14
+  or fiscal_week_number == 18
+  or fiscal_week_number == 23
+  or fiscal_week_number == 27
+  or fiscal_week_number == 31
+  or fiscal_week_number == 36
+  or fiscal_week_number == 40
+  or fiscal_week_number == 44
+  or fiscal_week_number == 49 %}
+
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  @{fiscal_month_number}
+
+  {% assign fiscal_month_number = fiscal_month_number | minus: 1 %}
+
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+
+  {% else %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  @{fiscal_month_number}
+  @{fiscal_month_start}
+  @{fiscal_month_end}
+  @{fiscal_week_start}
+  @{fiscal_week_end}
+
+  {% assign start_date = fiscal_month_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: two_years_this_month_dates {
   value: "
   @{two_years_ago_fiscal_dates}
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
+constant: fy19_this_month_dates {
+  value: "
+  @{fy19_fiscal_dates}
   {% assign start_date = fiscal_month_start %}
   {% assign end_date = fiscal_month_end %}
   @{loop_dates}
@@ -609,9 +960,72 @@ constant: last_year_this_quarter_dates {
   {{dates}}"
 }
 
+constant: last_year_this_qtd_til_last_complete_week_dates {
+  value: "
+  @{fiscal_year}
+  @{fiscal_year_start}
+  @{fiscal_day_of_year}
+  @{fiscal_week_number}
+
+  {% if fiscal_week_number == 1 %}
+  {% assign fiscal_year = fiscal_year | minus: 2 %}
+  {% assign fiscal_quarter_number = 4 %}
+
+  @{fiscal_year_start}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+
+
+  {% elsif fiscal_week_number == 14
+  or fiscal_week_number == 27
+  or fiscal_week_number == 40 %}
+
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  @{fiscal_quarter_number}
+
+  {% assign fiscal_quarter_number = fiscal_quarter_number | minus: 1 %}
+
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+
+  {% else %}
+  {% assign fiscal_year = fiscal_year | minus: 1 %}
+  @{fiscal_year_start}
+  @{fiscal_quarter_number}
+  @{fiscal_quarter_start}
+  @{fiscal_quarter_end}
+  @{fiscal_week_start}
+  @{fiscal_week_end}
+
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign 7_day_seconds = 7 | times: 24 | times: 60 | times: 60 %}
+  {% assign end_date = fiscal_week_end | date: '%s' | minus: 7_day_seconds | date: '%Y-%m-%d' %}
+  {% endif %}
+
+  @{loop_dates}
+  {{dates}}"
+}
+
+
+
 constant: two_years_this_quarter_dates {
   value: "
   @{two_years_ago_fiscal_dates}
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
+constant: fy19_this_quarter_dates {
+  value: "
+  @{fy19_fiscal_dates}
   {% assign start_date = fiscal_quarter_start %}
   {% assign end_date = fiscal_quarter_end %}
   @{loop_dates}
@@ -636,6 +1050,15 @@ constant: two_years_last_week_dates {
   {{dates}}"
 }
 
+constant: fy19_last_week_dates {
+  value: "
+  @{fy19_last_week_fiscal_dates}
+  {% assign start_date = fiscal_week_start %}
+  {% assign end_date = fiscal_week_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: last_year_last_month_dates {
   value: "
   @{last_year_last_month_fiscal_dates}
@@ -648,6 +1071,15 @@ constant: last_year_last_month_dates {
 constant: two_years_last_month_dates {
   value: "
   @{two_years_last_month_fiscal_dates}
+  {% assign start_date = fiscal_month_start %}
+  {% assign end_date = fiscal_month_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
+constant: fy19_last_month_dates {
+  value: "
+  @{fy19_last_month_fiscal_dates}
   {% assign start_date = fiscal_month_start %}
   {% assign end_date = fiscal_month_end %}
   @{loop_dates}
@@ -672,6 +1104,15 @@ constant: two_years_last_quarter_dates {
   {{dates}}"
 }
 
+constant: fy19_last_quarter_dates {
+  value: "
+  @{fy19_last_quarter_fiscal_dates}
+  {% assign start_date = fiscal_quarter_start %}
+  {% assign end_date = fiscal_quarter_end %}
+  @{loop_dates}
+  {{dates}}"
+}
+
 constant: compare_this_week_yoy {
   value: "@{this_week_dates},@{last_year_this_week_dates}"
 }
@@ -680,20 +1121,40 @@ constant: compare_this_week_two_years {
   value: "@{this_week_dates},@{two_years_this_week_dates}"
 }
 
+constant: compare_this_week_fy19 {
+  value: "@{this_week_dates},@{fy19_this_week_dates}"
+}
+
 constant: compare_this_month_yoy {
   value: "@{this_month_dates},@{last_year_this_month_dates}"
+}
+
+constant: compare_this_month_last_complete_week_yoy {
+  value: "@{this_mtd_til_last_complete_week_dates},@{last_year_this_mtd_til_last_complete_week_dates}"
 }
 
 constant: compare_this_month_two_years {
   value: "@{this_month_dates},@{two_years_this_month_dates}"
 }
 
+constant: compare_this_month_fy19 {
+  value: "@{this_month_dates},@{fy19_this_month_dates}"
+}
+
 constant: compare_this_quarter_yoy {
   value: "@{this_quarter_dates},@{last_year_this_quarter_dates}"
 }
 
+constant: compare_this_quarter_last_complete_week_yoy {
+  value: "@{this_qtd_til_last_complete_week_dates},@{last_year_this_qtd_til_last_complete_week_dates}"
+}
+
 constant: compare_this_quarter_two_years {
   value: "@{this_quarter_dates},@{two_years_this_quarter_dates}"
+}
+
+constant: compare_this_quarter_fy19 {
+  value: "@{this_quarter_dates},@{fy19_this_quarter_dates}"
 }
 
 constant: compare_last_week_yoy {
@@ -704,12 +1165,20 @@ constant: compare_last_week_two_years {
   value: "@{last_week_dates},@{two_years_last_week_dates}"
 }
 
+constant: compare_last_week_fy19 {
+  value: "@{last_week_dates},@{fy19_last_week_dates}"
+}
+
 constant: compare_last_month_yoy {
   value: "@{last_month_dates},@{last_year_last_month_dates}"
 }
 
 constant: compare_last_month_two_years {
   value: "@{last_month_dates},@{two_years_last_month_dates}"
+}
+
+constant: compare_last_month_fy19 {
+  value: "@{last_month_dates},@{fy19_last_month_dates}"
 }
 
 constant: compare_last_quarter_yoy {
@@ -720,8 +1189,16 @@ constant: compare_last_quarter_two_years {
   value: "@{last_quarter_dates},@{two_years_last_quarter_dates}"
 }
 
+constant: compare_last_quarter_fy19 {
+  value: "@{last_quarter_dates},@{fy19_last_quarter_dates}"
+}
+
 constant: compare_ytd_yoy {
   value: "@{last_ytd_dates},@{this_ytd_dates}"
+}
+
+constant: compare_this_year_last_complete_week_yoy {
+  value: "@{this_ytd_til_last_complete_week_dates},@{last_year_this_ytd_til_last_complete_week_dates}"
 }
 
 constant: compare_last_two_years_yoy {
@@ -730,6 +1207,10 @@ constant: compare_last_two_years_yoy {
 
 constant: compare_this_year_two_years {
   value: "@{this_year_dates},@{two_years_ago_dates}"
+}
+
+constant: compare_this_year_fy19 {
+  value: "@{this_year_dates},@{fy19_dates}"
 }
 
 constant: compare_last_year_yoy {
@@ -742,6 +1223,10 @@ constant: compare_yesterday_yoy {
 
 constant: compare_yesterday_two_years {
   value: "@{yesterday},@{yesterday_two_years}"
+}
+
+constant: compare_yesterday_fy19 {
+  value: "@{yesterday},@{yesterday_fy19}"
 }
 
 constant: compare_this_week_to_last_week {
@@ -784,6 +1269,16 @@ constant: yesterday_two_years {
   DATE('{{yesterday_two_years}}')"
 }
 
+constant: yesterday_fy19 {
+  value: "
+  @{fy19_fiscal_dates}
+  {% assign start_date = fiscal_year_start %}
+  {% assign fiscal_day_of_year_seconds = fiscal_day_of_year | times: 24 | times: 60 | times: 60 %}
+  {% assign one_day = 1 | times: 24 | times: 60 | times: 60 %}
+  {% assign yesterday_fy19 =  fiscal_year_start | date: '%s' | plus: fiscal_day_of_year_seconds | minus: one_day | date: '%Y-%m-%d' %}
+  DATE('{{yesterday_fy19}}')"
+}
+
 constant: fiscal_date_filter {
   value: "
   {% if parameter_selected == 'yesterday' %} @{yesterday}
@@ -791,29 +1286,42 @@ constant: fiscal_date_filter {
   {% elsif parameter_selected == 'last_week' %} @{last_week_dates}
   {% elsif parameter_selected == 'preceding_week' %} @{two_weeks_ago_dates}
   {% elsif parameter_selected == 'this_period' %} @{this_month_dates}
+  {% elsif parameter_selected == 'this_period_last_complete_week' %} @{this_mtd_til_last_complete_week_dates}
   {% elsif parameter_selected == 'last_period' %} @{last_month_dates}
   {% elsif parameter_selected == 'this_quarter' %} @{this_quarter_dates}
+  {% elsif parameter_selected == 'this_quarter_last_complete_week' %} @{this_qtd_til_last_complete_week_dates}
   {% elsif parameter_selected == 'last_quarter' %} @{last_quarter_dates}
   {% elsif parameter_selected == 'this_year' %} @{this_year_dates}
+  {% elsif parameter_selected == 'this_year_last_complete_week' %} @{this_ytd_til_last_complete_week_dates}
   {% elsif parameter_selected == 'last_year' %} @{last_year_dates}
   {% elsif parameter_selected == 'two_years' %} @{two_years_ago_dates}
+  {% elsif parameter_selected == 'fy19' %} @{fy19_dates}
   {% elsif parameter_selected == 'this_ytd' %} @{this_ytd_dates}
   {% elsif parameter_selected == 'last_ytd' %} @{last_ytd_dates}
   {% elsif parameter_selected == 'compare_yesterday' %} @{compare_yesterday_yoy}
   {% elsif parameter_selected == 'compare_yesterday_two_years' %} @{compare_yesterday_two_years}
+  {% elsif parameter_selected == 'compare_yesterday_fy19' %} @{compare_yesterday_fy19}
   {% elsif parameter_selected == 'compare_this_week' %} @{compare_this_week_yoy}
   {% elsif parameter_selected == 'compare_this_week_two_years' %} @{compare_this_week_two_years}
+  {% elsif parameter_selected == 'compare_this_week_fy19' %} @{compare_this_week_fy19}
   {% elsif parameter_selected == 'compare_last_week' %} @{compare_last_week_yoy}
   {% elsif parameter_selected == 'compare_last_week_two_years' %} @{compare_last_week_two_years}
+  {% elsif parameter_selected == 'compare_last_week_fy19' %} @{compare_last_week_fy19}
   {% elsif parameter_selected == 'compare_this_period' %} @{compare_this_month_yoy}
+  {% elsif parameter_selected == 'compare_this_period_last_complete_week' %} @{compare_this_month_last_complete_week_yoy}
   {% elsif parameter_selected == 'compare_this_period_two_years' %} @{compare_this_month_two_years}
+  {% elsif parameter_selected == 'compare_this_period_fy19' %} @{compare_this_month_fy19}
   {% elsif parameter_selected == 'compare_last_period' %} @{compare_last_month_yoy}
   {% elsif parameter_selected == 'compare_last_period_two_years' %} @{compare_last_month_two_years}
+  {% elsif parameter_selected == 'compare_last_period_fy19' %} @{compare_last_month_fy19}
   {% elsif parameter_selected == 'compare_this_quarter' %} @{compare_this_quarter_yoy}
+  {% elsif parameter_selected == 'compare_this_quarter_last_complete_week' %} @{compare_this_quarter_last_complete_week_yoy}
   {% elsif parameter_selected == 'compare_last_quarter' %} @{compare_last_quarter_yoy}
   {% elsif parameter_selected == 'compare_ytd' %} @{compare_ytd_yoy}
+  {% elsif parameter_selected == 'compare_this_year_last_complete_week' %} @{compare_this_year_last_complete_week_yoy}
   {% elsif parameter_selected == 'compare_last_year' %} @{compare_last_year_yoy}
   {% elsif parameter_selected == 'compare_this_year_two_years' %} @{compare_this_year_two_years}
+  {% elsif parameter_selected == 'compare_this_year_fy19' %} @{compare_this_year_fy19}
   {% elsif parameter_selected == 'compare_last_two_years' %} @{compare_last_two_years_yoy}
   {% elsif parameter_selected == 'compare_this_week_to_last_week' %} @{compare_this_week_to_last_week}
   {% elsif parameter_selected == 'compare_last_week_to_preceding_week' %} @{compare_last_week_to_preceding_week}
