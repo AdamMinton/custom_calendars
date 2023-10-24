@@ -21,7 +21,7 @@ constant: fiscal_year_start {
   {% elsif fiscal_year == 2020 %} {% assign fiscal_year_start = '2020-02-02' %}
   {% elsif fiscal_year == 2021 %} {% assign fiscal_year_start = '2021-01-31' %}
   {% elsif fiscal_year == 2022 %} {% assign fiscal_year_start = '2022-01-30' %}
-  {% elsif fiscal_year == 2023 %} {% assign fiscal_year_start = '2023-01-29' %}
+  {% elsif fiscal_year == 2023 %} {% assign fiscal_year_start = '2023-02-05' %}
   {% elsif fiscal_year == 2024 %} {% assign fiscal_year_start = '2024-02-04' %}
   {% elsif fiscal_year == 2025 %} {% assign fiscal_year_start = '2025-02-02' %}
   {% elsif fiscal_year == 2026 %} {% assign fiscal_year_start = '2026-02-01' %}
@@ -29,7 +29,6 @@ constant: fiscal_year_start {
   {% elsif fiscal_year == 2028 %} {% assign fiscal_year_start = '2028-01-30' %}
   {% elsif fiscal_year == 2029 %} {% assign fiscal_year_start = '2029-02-04' %}
   {% elsif fiscal_year == 2030 %} {% assign fiscal_year_start = '2030-02-03' %}
-
   {% else %} {% assign fiscal_year_start = '2030-02-03' %}
   {% endif %}
   {% assign fiscal_year_start_seconds = fiscal_year_start | date: '%s' %}
