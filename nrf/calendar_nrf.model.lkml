@@ -56,6 +56,77 @@ explore: order_items_parameter {
 
 }
 
+explore: order_items_sql_preamble {
+  from: order_items
+  view_name: order_items
+
+  ## Sample of what @{new_fiscal_date_filters} is doing
+  # sql_preamble:
+  # -- 1. Declare the variable as an ARRAY of DATEs
+  # DECLARE target_dates ARRAY<DATE>;
+  # -- 2. Set the variable by aggregating the query results into an array
+  # {% if fiscal_period_analysis_calendar.date_filter._parameter_value == 'this_week' %}
+  # SET target_dates = (
+  #   SELECT ARRAY_AGG(calendar_date)
+  #   FROM `adamminton-sandbox.custom_calendars.nrf_calendar`
+  #   WHERE fiscal_year_week IN (
+  #   SELECT fiscal_year_week
+  #   FROM `adamminton-sandbox.custom_calendars.nrf_calendar`
+  #   WHERE calendar_date = CURRENT_DATE()
+  #   )
+  # );
+  # {% endif %} ;;
+
+  sql_preamble:
+  {% assign fiscal_calendar_table = 'adamminton-sandbox.custom_calendars.nrf_calendar' %}
+  {% assign parameter_selected = fiscal_period_analysis_calendar.date_filter._parameter_value %}
+  @{new_fiscal_date_filters} ;;
+
+  conditionally_filter: {
+    #This ensures no one filters the entire dataset
+    filters: [arbitrary_period_analysis.first_period_filter: "7 days ago for 7 days"]
+    #As noted above, there are 2 primary dte filters this will allow the user to remove the first one. If they remove this filter, the above filter will pop back in.
+    unless: [fiscal_period_analysis_calendar.date_filter]
+  }
+
+  sql_always_where:
+  ( {% condition arbitrary_period_analysis.first_period_filter %} ${order_items.created_date}  {% endcondition %} )
+    {% if arbitrary_period_analysis.second_period_filter._in_query%}
+      OR ( {% condition arbitrary_period_analysis.second_period_filter %} ${order_items.created_date} {% endcondition %} )
+    {% endif %}
+  {% if fiscal_period_analysis_calendar.date_filter._in_query %}
+  AND ${order_items.created_date} IN UNNEST(target_dates)
+  {% endif %};;
+
+  join: fiscal_calendar {
+    type: inner
+    sql_on: ${order_items.created_date} = ${fiscal_calendar.calendar_date};;
+    relationship: many_to_one
+  }
+
+  join: fiscal_period_analysis_calendar {
+    type: inner
+    sql_on: ${fiscal_calendar.calendar_date} = ${fiscal_period_analysis_calendar.calendar_raw} ;;
+    relationship: one_to_one
+    sql_where: ${fiscal_period_analysis_calendar.in_selected_time_period} IS TRUE AND
+          {% if fiscal_period_analysis_calendar.is_to_period._in_query %}
+            {% if fiscal_period_analysis_calendar.is_to_period._parameter_value == "true" %} ${fiscal_period_analysis_calendar.to_period} IS TRUE {% else %} 1=1 {% endif %}
+          {% elsif fiscal_period_analysis_calendar.date_filter._in_query %}
+            {% if fiscal_period_analysis_calendar.date_filter._parameter_value contains "compare" %} ${fiscal_period_analysis_calendar.to_period} IS TRUE {% else %} 1=1 {% endif %}
+          {% else %} 1=1 {% endif %};;
+  }
+
+  join: fiscal_calendar_string {
+    type: inner
+    sql_on: ${order_items.created_date} = ${fiscal_calendar_string.calendar_date};;
+    relationship: many_to_one
+  }
+
+  join: arbitrary_period_analysis {}
+
+
+}
+
 explore: fiscal_calendar {
   hidden: yes
 }

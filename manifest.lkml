@@ -1328,3 +1328,299 @@ constant: fiscal_date_filter {
   {% endif %}
   "
 }
+
+constant: new_fiscal_date_filters {
+  value: "
+  -- 1. Declare the variable as an ARRAY of DATEs
+  DECLARE target_dates ARRAY<DATE>;
+
+  -- 2. Set the variable based on the parameter selection
+
+  -- --- DAILY / WEEKLY (Single Periods) ---
+  {% if parameter_selected == 'yesterday' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+  );
+
+  {% elsif parameter_selected == 'this_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'last_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY))
+  );
+
+  {% elsif parameter_selected == 'preceding_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY))
+  );
+
+  -- --- MONTHS / QUARTERS / YEARS (Single Periods) ---
+  {% elsif parameter_selected == 'this_period' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'this_period_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_week < (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'last_period' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_month = (
+  SELECT fiscal_year_month FROM {{fiscal_calendar_table}}
+  WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)
+  )
+  );
+
+  {% elsif parameter_selected == 'this_quarter' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'this_quarter_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_week < (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'last_quarter' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year_quarter = (
+  SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}}
+  WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)
+  )
+  );
+
+  {% elsif parameter_selected == 'this_year' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'this_year_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_week < (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'last_year' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'this_ytd' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_day <= (SELECT fiscal_year_day FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  {% elsif parameter_selected == 'last_ytd' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_day <= (SELECT fiscal_year_day - 1000 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  );
+
+  -- --- COMPARISONS (Primary U Comparison) ---
+
+  {% elsif parameter_selected == 'compare_yesterday' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY))
+  OR (fiscal_year_day = (SELECT fiscal_year_day - 1000 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)))
+  );
+
+  {% elsif parameter_selected == 'compare_yesterday_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY))
+  OR (fiscal_year_day = (SELECT fiscal_year_day - 2000 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)))
+  );
+
+  {% elsif parameter_selected == 'compare_this_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_week = (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_this_week_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_week = (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_last_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_week = (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY))))
+  );
+
+  {% elsif parameter_selected == 'compare_last_week_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_week = (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY))))
+  );
+
+  {% elsif parameter_selected == 'compare_this_period' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_period = (SELECT fiscal_period FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_this_period_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_period = (SELECT fiscal_period FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND (fiscal_week < (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_this_period_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_period = (SELECT fiscal_period FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_last_period' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_period = (SELECT fiscal_period FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY))))
+  );
+
+  {% elsif parameter_selected == 'compare_last_period_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_period = (SELECT fiscal_period FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY))))
+  );
+
+  {% elsif parameter_selected == 'compare_this_quarter' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_quarter = (SELECT fiscal_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_this_quarter_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_quarter = (SELECT fiscal_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND (fiscal_week < (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_last_quarter' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_quarter = (SELECT fiscal_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_quarter = (SELECT fiscal_year_quarter FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY))))
+  );
+
+  {% elsif parameter_selected == 'compare_ytd' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_day <= (SELECT fiscal_year_day FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())
+  AND fiscal_year_day <= (SELECT fiscal_year_day - 1000 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  );
+
+  {% elsif parameter_selected == 'compare_this_year_last_complete_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_week < (SELECT fiscal_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  AND ((fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())))
+  );
+
+  {% elsif parameter_selected == 'compare_last_year' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  );
+
+  {% elsif parameter_selected == 'compare_this_year_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year = (SELECT fiscal_year FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  );
+
+  {% elsif parameter_selected == 'compare_last_two_years' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year = (SELECT fiscal_year - 1 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year = (SELECT fiscal_year - 2 FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  );
+
+  {% elsif parameter_selected == 'compare_this_week_to_last_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  );
+
+  {% elsif parameter_selected == 'compare_last_week_to_preceding_week' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 7 DAY)))
+  OR (fiscal_year_week = (SELECT fiscal_year_week FROM {{fiscal_calendar_table}} WHERE calendar_date = DATE_SUB(CURRENT_DATE(), INTERVAL 14 DAY)))
+  );
+
+  {% elsif parameter_selected == 'compare_this_period_to_last_period' %}
+  SET target_dates = (
+  SELECT ARRAY_AGG(calendar_date) FROM {{fiscal_calendar_table}}
+  WHERE (fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE()))
+  OR (fiscal_year_month = (
+  SELECT fiscal_year_month FROM {{fiscal_calendar_table}}
+  WHERE calendar_date = DATE_SUB((SELECT MIN(calendar_date) FROM {{fiscal_calendar_table}} WHERE fiscal_year_month = (SELECT fiscal_year_month FROM {{fiscal_calendar_table}} WHERE calendar_date = CURRENT_DATE())), INTERVAL 1 DAY)
+  ))
+  );
+
+  {% endif %}
+  "
+}
