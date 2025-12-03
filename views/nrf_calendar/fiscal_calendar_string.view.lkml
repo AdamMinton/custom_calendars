@@ -1,6 +1,6 @@
 view: fiscal_calendar_string {
   view_label: "04. 🗓️ Calendar - String"
-  sql_table_name: `aminton-sandbox-ps.reference.calendar_nrf_string` ;;
+  sql_table_name: `adamminton-sandbox.custom_calendars.nrf_calendar` ;;
 
   dimension: calendar_raw {
     hidden: yes
@@ -209,7 +209,7 @@ view: fiscal_calendar_string {
 }
 
 view: fiscal_calendar_string_52_weeks {
-  sql_table_name: `aminton-sandbox-ps.reference.calendar_nrf_string` ;;
+  sql_table_name: `adamminton-sandbox.custom_calendars.nrf_calendar` ;;
 
   dimension: calendar_raw {
     hidden: yes

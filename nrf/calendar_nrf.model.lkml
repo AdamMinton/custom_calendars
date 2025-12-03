@@ -59,10 +59,12 @@ explore: order_items_parameter {
 explore: fiscal_calendar {
   hidden: yes
 }
+
 explore: fiscal_calendar_string_52_weeks {
   sql_always_where: ((${calendar_date} >= ((DATE_ADD(DATE_TRUNC(CURRENT_DATE('{{_query._query_timezone}}'), WEEK(MONDAY)), INTERVAL -51 WEEK))) AND ${calendar_date} < ((DATE_ADD(DATE_ADD(DATE_TRUNC(CURRENT_DATE('{{_query._query_timezone}}'), WEEK(MONDAY)), INTERVAL -51 WEEK), INTERVAL 52 WEEK))))) ;;
   hidden: yes
 }
+
 explore: fiscal_period_analysis_dates {
   hidden: yes
   view_label: " Dates"
