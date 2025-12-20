@@ -100,16 +100,22 @@ view: order_items {
   measure: count {
     type: count
     drill_fields: [detail*]
+    value_format_name: decimal_0
+    html: @{html_large_value_format} ;;
   }
 
   measure: total_sale_price {
     type: sum
     sql: ${sale_price} ;;
+    value_format_name: usd_0
+    html: @{html_large_value_format_usd} ;;
   }
 
   measure: average_sale_price {
     type: average
     sql: ${sale_price} ;;
+    value_format_name: usd_0
+    html: @{html_large_value_format_usd} ;;
   }
 
   # ----- Sets of fields for drilling ------

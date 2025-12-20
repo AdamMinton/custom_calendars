@@ -1,5 +1,42 @@
 project_name: "custom_calendars"
 
+
+constant: html_large_value_format {
+  value: "{% if value >= 1000000000 %}
+  {{ value | divided_by: 1000000000.0 | round: 2 }}B
+  {% elsif value <= -1000000000 %}
+  {{ value | divided_by: 1000000000.0 | round: 2 }}B
+  {% elsif value >= 1000000 %}
+  {{ value | divided_by: 1000000.0 | round: 1 }}M
+  {% elsif value <= -1000000 %}
+  {{ value | divided_by: 1000000.0 | round: 1 }}M
+  {% elsif value >= 1000 %}
+  {{ value | divided_by: 1000.0 | round: 1 }}K
+  {% elsif value <= -1000 %}
+  {{ value | divided_by: 1000.0 | round: 1 }}K
+  {% else %}
+  {{ rendered_value }}
+  {% endif %}"
+}
+
+constant: html_large_value_format_usd {
+  value: "{% if value >= 1000000000 %}
+  ${{ value | divided_by: 1000000000.0 | round: 2 }}B
+  {% elsif value <= -1000000000 %}
+  ${{ value | divided_by: 1000000000.0 | round: 2 }}B
+  {% elsif value >= 1000000 %}
+  ${{ value | divided_by: 1000000.0 | round: 1 }}M
+  {% elsif value <= -1000000 %}
+  ${{ value | divided_by: 1000000.0 | round: 1 }}M
+  {% elsif value >= 1000 %}
+  ${{ value | divided_by: 1000.0 | round: 1 }}K
+  {% elsif value <= -1000 %}
+  ${{ value | divided_by: 1000.0 | round: 1 }}K
+  {% else %}
+  {{ rendered_value }}
+  {% endif %}"
+}
+
 constant: fiscal_year {
   value: "
   {% assign today_week = 'now' | date: '%W' | minus: 0  %}
